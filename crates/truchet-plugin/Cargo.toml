@@ -1,0 +1,13 @@
+[package]
+name = "truchet-plugin"
+description = "Fireheart WASM guest for the truchet_ms variation."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+truchet-tiles = { path = "../truchet-tiles" }
