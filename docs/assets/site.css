@@ -110,6 +110,10 @@ footer.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;p
 #s1 .w .cv:first-child{max-width:420px;margin:0 auto}
 
 .intro{padding:34px 44px 56px}
+.hero{display:block;margin:8px 44px 0;border:2px solid var(--line);background:#05070c;max-width:920px}
+.hero img{display:block;width:100%;height:auto}
+.hero figcaption{padding:10px 14px;border-top:2px solid var(--line);font-size:.86rem;color:var(--dim)}
+@media(max-width:900px){.hero{margin:8px 20px 0}}
 .intro .huge{margin-top:6px}
 .intro p{font-size:1.12rem;max-width:40em}
 @media(max-width:900px){.intro{padding:24px 20px 40px}}
