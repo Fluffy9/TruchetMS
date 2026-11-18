@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Truchet Mosaic — truchet_ms</title>
+<meta name="description" content="Truchet Mosaic (truchet_ms): multi-scale Truchet tiles as a fractal flame variation. How the Vodoo flame is built, with live widgets that run the plugin's own tiling code.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23161616%27/%3E%3Ccircle cx=%270%27 cy=%270%27 r=%2716%27 fill=%27none%27 stroke=%27%23ddd%27 stroke-width=%278%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2716%27 fill=%27none%27 stroke=%27%23ddd%27 stroke-width=%278%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="frame">
+  <header class="bar">
+    <a class="logo" href="./">Truchet MS</a>
+    <nav>
+      <a href="./" aria-current="page">Tiles to Vodoo</a>
+      <a href="reference.html">Docs</a>
+      <a href="__REPO_URL__">Source</a>
+    </nav>
+  </header>
+
+  <div class="intro">
+    <h1 class="huge">Truchet Mosaic</h1>
+    <p class="sub">truchet_ms, a variation for Fireheart and Apophysis</p>
+    <p style="margin-top:1.4rem">Truchet Mosaic draws multi-scale Truchet tiles inside a fractal flame. This page builds the Vodoo flame from the smallest piece up: one tile, how tiles join, how they split, then the hyperbolic disk. Every widget runs the plugin's own tiling code, so a seed here is the same seed in the flame.</p>
+  </div>
+
+  <section class="sec" id="s1">
+    <span class="num">01</span>
+    <h2>Tiles</h2><p class="sub">the unit everything is built from</p>
+    <div class="two">
+      <div class="say">
+        <p>A tile is a square cell with ink and ground drawn in it. The dotted line is the cell, and the bright shapes are the tile's own ink.</p>
+        <p>The dim half-dots just outside the line are not part of this tile. Every tile carries the same dots on its edges, so a neighbour always supplies its own half on the other side and the pair makes a full dot. Where the neighbour has a stroke running into the same edge, the stroke simply continues instead.</p>
+        <p>There are two sets. The <b>dot set</b> has 22 tiles: every edge carries two small dots, and the strokes are rings and arcs around them. The <b>band set</b> is Carlson's original fifteen, where a wide strip of ink crosses each edge. Switch between them to compare.</p>
+        <div class="when"><b>Rotate SadFace</b> and the two arcs hug a different pair of corners: frown, smile, sideways.</div>
+        <div class="when"><b>Rotate Hourglass</b> and it only has two looks, because a half turn lands on itself. <b>Filled</b> looks the same any way up.</div>
+        <p class="note">Pick a tile on the right. The strip shows all four turns.</p>
+      </div>
+      <div data-widget="tile"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="s2">
+    <span class="num">02</span>
+    <h2>They always join</h2><p class="sub">same ink on every edge</p>
+    <div class="two">
+      <div class="say">
+        <p>Every tile in a set carries the same ink on each edge: in the dot set, two dots at a quarter and three quarters of the way along; in the band set, a strip across the middle third. So any tile can sit next to any other, turned any way, and the ink on the shared edge lines up.</p>
+        <p>Nothing has to be matched or checked. The mosaic picks a random tile and a random turn for every cell.</p>
+        <div class="when"><b>Shuffle the seed</b> and you get a different carpet, never a broken seam.</div>
+        <p class="note">The seed is the whole layout. Same seed, same mosaic, in the plugin and here.</p>
+      </div>
+      <div data-widget="edges"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="s3">
+    <span class="num">03</span>
+    <h2>Splitting</h2><p class="sub">one tile becomes four</p>
+    <div class="two">
+      <div class="say">
+        <p>Any cell can split into four smaller cells, each with its own tile. Those can split again. <code>split</code> is the chance a cell splits and <code>levels</code> is how many times in a row it may.</p>
+        <p>Each level swaps ink and ground, so a small tile sits inside a big one as a negative. The small tile also overhangs its edge a little, which rounds off the joins between sizes.</p>
+        <p class="note">In the animation, the orange cross marks a cell about to split. Pause it and press step to go one level at a time.</p>
+      </div>
+      <div data-widget="split"></div>
+    </div>
+    <div class="two stack">
+      <div class="say">
+        <p>Try it with your own numbers.</p>
+        <div class="when"><b>Raise levels from 0 to 6</b> and the same seed grows detail inside the same big shapes. Nothing moves, it only gets finer.</div>
+        <div class="when"><b>Push split toward 1</b> and almost everything shatters to the deepest level. Toward 0 you get big calm tiles.</div>
+      </div>
+      <div data-widget="scales"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="s4">
+    <span class="num">04</span>
+    <h2>Tile size follows height</h2><p class="sub">grade, where it becomes a fractal</p>
+    <div class="two">
+      <div class="say">
+        <p>Vodoo lives in a hyperbolic world, where things get smaller toward the edge. In the upper half plane that means tile size follows height: the closer to <code>y = 0</code>, the smaller the tile.</p>
+        <p><code>grade</code> sets how fast. A cell keeps splitting while it is bigger than about <code>grade &times; height</code>, up to <code>levels</code>. That replaces the random <code>split</code> chance, so <code>split</code> is ignored once grade is above 0.</p>
+        <p class="note">Below the floor is nothing. The pattern repeats sideways forever, not up or down.</p>
+      </div>
+      <div data-widget="split" data-grade="1"></div>
+    </div>
+    <div class="two stack">
+      <div class="say">
+        <p>Raise grade and tiles stay big for longer, so the floor is coarser. Lower it and detail piles up toward the floor.</p>
+        <p>The snippet under the widget is the transform for what you see. It uses <code>mode 0</code>, which fills the flat picture. In the flame it is centred on the origin, so the floor sits at <code>y = &minus;3</code>.</p>
+      </div>
+      <div data-widget="grade"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="s5">
+    <span class="num">05</span>
+    <h2>Into the disk</h2><p class="sub">half plane to Poincar&eacute; disk, mode 3</p>
+    <div class="two">
+      <div class="say">
+        <p>Bend the half plane into a disk (a Cayley map) and the floor <code>y = 0</code> becomes the rim. Tiles shrink toward the rim exactly like they shrank toward the floor.</p>
+        <p>The mosaic repeats sideways, so adding a number to <code>x</code> slides the whole pattern around the rim. Press <b>slide the plane</b>.</p>
+        <p>The snippet is the transform for the disk you are looking at. <code>mode 3</code> puts points directly inside the unit disk, so the camera needs <code>center="0 0"</code> and a scale of about half the image size.</p>
+      </div>
+      <div data-widget="disk"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="s6">
+    <span class="num">06</span>
+    <h2>Packing the disk</h2><p class="sub">{p,q}, bubbles and gaps</p>
+    <div class="two">
+      <div class="say">
+        <p>One disk isn't a picture yet. Vodoo packs a ring of identical disks inside a bigger one, the way a hyperbolic <code>{p,q}</code> tiling does: <code>p</code> bubbles around a centre, <code>q</code> of them meeting at every corner. Vodoo uses <code>{6,4}</code>.</p>
+        <p>For <code>{6,4}</code> each bubble has linear radius <code>0.414214</code> (&radic;2 &minus; 1), which is the <code>coefs</code> of the <code>bubble</code> transform. Between the bubbles are gaps, and the gap circles are where a second kind of content goes.</p>
+        <div class="when"><b>Move p and q</b>: a larger q squeezes the bubbles, a larger p rounds the ring.</div>
+      </div>
+      <div data-widget="packing"></div>
+    </div>
+    <div class="two stack">
+      <div class="say">
+        <p>These are the four transforms Vodoo uses for the packing, read from the flame file. They run hidden (<code>opacity="0"</code>) and move points around; nothing is drawn by them. Their <code>chaos</code> rows are left out here and explained in the next step.</p>
+        <p class="note"><code>hypertile2</code> repeats content around the {6,4} tiling, <code>mobius</code> carries a disk into a gap, <code>starblur</code> makes the star-shaped gap content.</p>
+      </div>
+      <div data-widget="parts" data-names="bubble,gap,hyper,star" data-omit="chaos" data-src="flames/vodoo.flame"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="s7">
+    <span class="num">07</span>
+    <h2>Putting it together</h2><p class="sub">xaos: telling points where to go</p>
+    <div class="two">
+      <div class="say">
+        <p>Vodoo is seven transforms, and they have to be used in order. A point is made by <b>tiles</b>, packed by <b>bubble</b>, <b>gap</b>, <b>hyper</b> and <b>star</b>, and only then drawn by <b>INV</b> or <b>CORE</b>.</p>
+        <p>A flame does not know that. Left alone it picks the next transform at random, so a fresh tile point could be drawn without ever being packed. <b>xaos</b> fixes it. Every transform gets a list of weights saying which transforms may come after it, and a 0 means never. That turns seven loose transforms into a route.</p>
+        <p>This is Vodoo's route. Thick arrows are likely, thin ones rare, and the dashed arrow is a point starting over after it has been drawn.</p>
+      </div>
+      <div class="w route-w"><svg viewBox="0 0 660 310" class="route" role="img" aria-label="Route of a point through Vodoo: tiles, then pack, then plot with INV, or straight to CORE">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff7850"/></marker></defs>
+        <g fill="none" stroke="#e2e2de" stroke-width="2">
+          <rect x="14" y="115" width="150" height="80"/>
+          <rect x="250" y="62" width="190" height="186"/>
+          <rect x="530" y="40" width="116" height="62"/>
+          <rect x="530" y="208" width="116" height="62"/>
+        </g>
+        <g fill="#e2e2de" font-family="Helvetica,Arial,sans-serif">
+          <text x="89" y="150" text-anchor="middle" font-size="19" font-weight="700">tiles</text>
+          <text x="89" y="172" text-anchor="middle" font-size="13" fill="#8d8d89">makes a point</text>
+          <text x="345" y="112" text-anchor="middle" font-size="19" font-weight="700">pack</text>
+          <text x="345" y="138" text-anchor="middle" font-size="14">bubble · gap</text>
+          <text x="345" y="158" text-anchor="middle" font-size="14">hyper · star</text>
+          <text x="345" y="190" text-anchor="middle" font-size="13" fill="#8d8d89">shrink it, copy it round</text>
+          <text x="345" y="206" text-anchor="middle" font-size="13" fill="#8d8d89">the tiling, fill the gaps</text>
+          <text x="345" y="228" text-anchor="middle" font-size="13" fill="#8d8d89">(hidden, nothing drawn)</text>
+          <text x="588" y="68" text-anchor="middle" font-size="19" font-weight="700">INV</text>
+          <text x="588" y="88" text-anchor="middle" font-size="13" fill="#8d8d89">draws, inside out</text>
+          <text x="588" y="236" text-anchor="middle" font-size="19" font-weight="700">CORE</text>
+          <text x="588" y="256" text-anchor="middle" font-size="13" fill="#8d8d89">draws the disk</text>
+        </g>
+        <g fill="none" stroke="#ff7850" marker-end="url(#ah)">
+          <path d="M164,155 L248,155" stroke-width="7"/>
+          <path d="M89,195 C89,290 400,290 528,250" stroke-width="2"/>
+          <path d="M440,100 L528,72" stroke-width="5"/>
+          <path d="M300,62 C300,22 390,22 390,60" stroke-width="5"/>
+          <path d="M588,40 C588,4 89,4 89,113" stroke-width="2" stroke-dasharray="6 6"/>
+        </g>
+        <g fill="#ff9b7c" font-family="ui-monospace,monospace" font-size="15" font-weight="700" text-anchor="middle">
+          <text x="206" y="130">most</text>
+          <text x="270" y="300">a little</text>
+          <text x="476" y="62">some</text>
+          <text x="256" y="46">again</text>
+        </g>
+      </svg></div>
+    </div>
+    <div class="two stack">
+      <div class="say">
+        <p>The numbers behind the arrows. Pick a transform: the triangle is that transform, and each arrow is a transform that may come next, as thick as its weight.</p>
+        <p class="note">In the flame file the weights are the <code>chaos</code> attribute, one number per transform in file order (tiles, star, bubble, gap, hyper, CORE, INV). They only need to be proportions: 0.176 and 0.044 are the same as 4 and 1.</p>
+      </div>
+      <div data-widget="weights" data-src="flames/vodoo.flame"></div>
+    </div>
+    <div class="two stack">
+      <div class="say">
+        <p>In the file, the tile transform and the two drawing transforms. <b>tiles</b> and the two drawing transforms are the ones the route starts and ends with.</p>
+        <p>Only <b>CORE</b> and <b>INV</b> have <code>opacity="1"</code>. Everything else moves points without drawing them, so CORE draws the tile disk as it is, and INV draws everything that was packed, turned inside out with <code>spherical</code>. Together they make the picture below.</p>
+      </div>
+      <div data-widget="parts" data-names="tiles,CORE,INV" data-omit="" data-src="flames/vodoo.flame"></div>
+    </div>
+    <figure class="result" data-widget="viewer" data-src="flames/vodoo.flame" data-size="512" data-quality="25" data-plugins="https://firehe.art/plugins/thirdparty.wasm"><img src="assets/vodoo.jpg" alt="The Vodoo flame: a bright hyperbolic disk ringed by petals of fine tiles, fading into a dark field of larger tiles" width="1400" height="1400" loading="lazy"><figcaption>The result: Vodoo, rendered live by Fireheart from the flame below. If the viewer cannot load, this still (1920&times;1920) is shown instead.</figcaption></figure>
+    <h3>The flame</h3>
+    <div data-widget="flame" data-src="flames/vodoo.flame"></div>
+    <h3>Three more flames</h3>
+    <p>Each is a single <code>truchet_ms</code> transform, rendered live. Open the XML button on a viewer to copy it, or download the file.</p>
+    <div class="ex">
+      <figure data-widget="viewer" data-src="flames/carpet-band.flame" data-size="360" data-quality="25"><figcaption>Band set, mode 0: a flat carpet. <a href="flames/carpet-band.flame" download>.flame</a></figcaption></figure>
+      <figure data-widget="viewer" data-src="flames/carpet-dot.flame" data-size="360" data-quality="25"><figcaption>Dot set, mode 0: same seed and levels. <a href="flames/carpet-dot.flame" download>.flame</a></figcaption></figure>
+      <figure data-widget="viewer" data-src="flames/disk.flame" data-size="360" data-quality="25"><figcaption>Dot set, mode 3: the disk with no packing. <a href="flames/disk.flame" download>.flame</a></figcaption></figure>
+    </div>
+    <p style="margin-top:34px"><a class="btn" href="reference.html">Docs &rarr;</a></p>
+  </section>
+
+  <footer class="foot"><span>MIT licensed. Tiles after Christopher Carlson, <a href="https://archive.bridgesmathart.org/2018/bridges2018-39.pdf">Multi-Scale Truchet Patterns</a> (Bridges 2018).</span><span><a href="api/">API docs</a> &middot; <a href="__REPO_URL__">Source</a></span></footer>
+</div>
+<script src="assets/truchet.js"></script>
+<script src="assets/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs — truchet_ms</title>
+<meta name="description" content="Reference for the truchet_ms variation: parameters, modes and tile sets.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23161616%27/%3E%3Ccircle cx=%270%27 cy=%270%27 r=%2716%27 fill=%27none%27 stroke=%27%23ddd%27 stroke-width=%278%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2716%27 fill=%27none%27 stroke=%27%23ddd%27 stroke-width=%278%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="frame">
+  <header class="bar">
+    <a class="logo" href="./">Truchet MS</a>
+    <nav>
+      <a href="./">Tiles to Vodoo</a>
+      <a href="reference.html" aria-current="page">Docs</a>
+      <a href="__REPO_URL__">Source</a>
+    </nav>
+  </header>
+
+  <article class="doc">
+    <h1 class="huge">Documentation</h1>
+    <p class="lead">Reference for the <code>truchet_ms</code> variation. In a flame, each parameter is written <code>truchet_ms_</code> followed by its name, for example <code>truchet_ms_levels="5"</code>. For a walkthrough, see <a href="./">Tiles to Vodoo</a>.</p>
+
+    <nav class="contents" aria-label="Contents">
+      <div class="ctitle">Contents</div>
+      <ol>
+        <li><a href="#parameters">Parameters</a>
+          <ol>
+            <li><a href="#p-seed">seed</a></li>
+            <li><a href="#p-size">width, height</a></li>
+            <li><a href="#p-levels">levels</a></li>
+            <li><a href="#p-split">split</a></li>
+            <li><a href="#p-noise">noise</a></li>
+            <li><a href="#p-style">style</a></li>
+            <li><a href="#p-types">types</a></li>
+            <li><a href="#p-scale">scale</a></li>
+            <li><a href="#p-grade">grade</a></li>
+            <li><a href="#p-mode">mode</a></li>
+            <li><a href="#p-snap">snap</a></li>
+          </ol></li>
+        <li><a href="#modes">Modes</a>
+          <ol>
+            <li><a href="#m-0">0 generate</a></li>
+            <li><a href="#m-1">1 filter</a></li>
+            <li><a href="#m-2">2 snap</a></li>
+            <li><a href="#m-3">3 disk</a></li>
+            <li><a href="#m-host">Host support</a></li>
+          </ol></li>
+        <li><a href="#sets">Tile sets</a>
+          <ol>
+            <li><a href="#s-band">Band set</a></li>
+            <li><a href="#s-dot">Dot set</a></li>
+          </ol></li>
+        <li><a href="#install">Installation</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="parameters"><span class="n">1</span> Parameters</h2>
+    <p>Every parameter is a number. Defaults apply when a parameter is omitted.</p>
+      <div class="param" id="p-seed">
+        <div class="ptext"><h3><span class="n">1.1</span> <code>seed</code></h3><p class="meta">integer · default 1 · 0 or more</p><p>Selects the layout. The same seed and parameters always produce the same mosaic.</p></div>
+        <div class="pfig"><div class="figs" data-demo="seed"></div></div>
+      </div>
+      <div class="param" id="p-size">
+        <div class="ptext"><h3><span class="n">1.2</span> <code>width, height</code></h3><p class="meta">number · default 6 · 1 to 64</p><p>Size of the repeating mosaic, in top-level cells. The pattern repeats with this period. When <a href="#p-grade"><code>grade</code></a> is above 0 the pattern repeats in x only, and <code>height</code> is not used.</p></div>
+        <div class="pfig"><div class="figs" data-demo="size"></div></div>
+      </div>
+      <div class="param" id="p-levels">
+        <div class="ptext"><h3><span class="n">1.3</span> <code>levels</code></h3><p class="meta">integer · default 4 · 0 to 8</p><p>Maximum number of times a cell may be subdivided. At 0 every cell holds one tile. Each level halves the tile size and swaps ink and ground.</p></div>
+        <div class="pfig"><div class="figs" data-demo="levels"></div></div>
+      </div>
+      <div class="param" id="p-split">
+        <div class="ptext"><h3><span class="n">1.4</span> <code>split</code></h3><p class="meta">number · default 0.5 · 0 to 1</p><p>Probability that a cell is subdivided. Not used when <a href="#p-grade"><code>grade</code></a> is above 0.</p></div>
+        <div class="pfig"><div class="figs" data-demo="split"></div></div>
+      </div>
+      <div class="param" id="p-noise">
+        <div class="ptext"><h3><span class="n">1.5</span> <code>noise</code></h3><p class="meta">number · default 0.45 · 0 or more</p><p>Random variation added to each subdivision decision. Higher values pull the effective split rate toward 50%, whatever <code>split</code> is set to. With <code>grade</code> above 0 it varies the size threshold instead.</p></div>
+        <div class="pfig"><div class="figs" data-demo="noise"></div></div>
+      </div>
+      <div class="param" id="p-style">
+        <div class="ptext"><h3><span class="n">1.6</span> <code>style</code></h3><p class="meta">0 or 1 · default 0</p><p>Selects the tile set. <code>0</code> is the band set, <code>1</code> is the dot set. See <a href="#sets">Tile sets</a>.</p></div>
+        <div class="pfig"><div class="figs" data-demo="style"></div></div>
+      </div>
+      <div class="param" id="p-types">
+        <div class="ptext"><h3><span class="n">1.7</span> <code>types</code></h3><p class="meta">bitmask · default 3 · band set only</p><p>Selects which tile families the band set may use. Each family has a value; <code>types</code> is the sum of the values of the families you want.</p>
+        <p>For example, arcs (1 + 2) and bars (4) give <code>7</code>. All eight families give <code>255</code>. Ignored when <code>style</code> is 1.</p></div>
+        <div class="pfig"><div data-types></div></div>
+      </div>
+      <div class="param" id="p-scale">
+        <div class="ptext"><h3><span class="n">1.8</span> <code>scale</code></h3><p class="meta">number · default 1 · above 0</p><p>Multiplies the incoming coordinates before the mosaic is evaluated, so higher values give smaller tiles. Applies to modes 0 to 2.</p></div>
+        <div class="pfig"><div class="figs" data-demo="scale"></div></div>
+      </div>
+      <div class="param" id="p-grade">
+        <div class="ptext"><h3><span class="n">1.9</span> <code>grade</code></h3><p class="meta">number · default 0 · 0 to 64</p><p>When above 0, tile size is proportional to height above <code>y = 0</code>, and tiles shrink toward that line. This replaces <code>split</code>. Nothing is drawn at or below <code>y = 0</code>. Required by mode 3.</p></div>
+        <div class="pfig"><div class="figs" data-demo="grade"></div></div>
+      </div>
+      <div class="param" id="p-mode">
+        <div class="ptext"><h3><span class="n">1.10</span> <code>mode</code></h3><p class="meta">integer · default 0 · 0 to 3</p><p>Selects what the variation does with the incoming point. See <a href="#modes">Modes</a>.</p></div>
+        <div class="pfig"></div>
+      </div>
+      <div class="param" id="p-snap">
+        <div class="ptext"><h3><span class="n">1.11</span> <code>snap</code></h3><p class="meta">number · default 0.4 · 0 or more</p><p>Mode 2 only. The greatest distance, in incoming units, that a point is moved to reach ink. At 0 mode 2 behaves like mode 1.</p></div>
+        <div class="pfig"><div class="figs"><div data-mode="2" data-snap="0.1" data-caption="snap 0.1"></div><div data-mode="2" data-snap="0.5" data-caption="snap 0.5"></div></div></div>
+      </div>
+
+    <h2 id="modes"><span class="n">2</span> Modes</h2>
+    <p>The mode sets how the variation treats the point it receives. In the figures, the dashed circle is the area the incoming points came from.</p>
+      <div class="param" id="m-0">
+        <div class="ptext"><h3><span class="n">2.1</span> <code>0 generate</code></h3><p class="meta"></p><p>Ignores the incoming point and emits a new point on ink, anywhere in the mosaic. The result is centred on the origin.</p></div>
+        <div class="pfig"><div class="figs"><div data-mode="0" data-caption="generate"></div></div></div>
+      </div>
+      <div class="param" id="m-1">
+        <div class="ptext"><h3><span class="n">2.2</span> <code>1 filter</code></h3><p class="meta"></p><p>Passes the incoming point through unchanged if it is on ink. If it is on ground the point is discarded. The tiles act as a stencil over whatever came before.</p></div>
+        <div class="pfig"><div class="figs"><div data-mode="1" data-caption="filter"></div></div></div>
+      </div>
+      <div class="param" id="m-2">
+        <div class="ptext"><h3><span class="n">2.3</span> <code>2 snap</code></h3><p class="meta"></p><p>Passes the incoming point through if it is on ink. If it is on ground, the point is moved to nearby ink, no further than <a href="#p-snap"><code>snap</code></a>. If no ink is found nearby the point is discarded. Compared with filter, fewer points are lost and the shape's edges are softened.</p></div>
+        <div class="pfig"><div class="figs"><div data-mode="2" data-snap="0.4" data-caption="snap"></div></div></div>
+      </div>
+      <div class="param" id="m-3">
+        <div class="ptext"><h3><span class="n">2.4</span> <code>3 disk</code></h3><p class="meta"></p><p>Emits points on the ink of the hyperbolic mosaic, inside the unit Poincar&eacute; disk. Requires <a href="#p-grade"><code>grade</code></a> above 0. The rim of the disk corresponds to <code>y = 0</code>.</p></div>
+        <div class="pfig"><div class="figs"><div data-mode="3" data-caption="disk"></div></div></div>
+      </div>
+      <div class="param" id="m-host">
+        <div class="ptext"><h3><span class="n">2.5</span> Host support</h3>
+        <div class="tw"><table>
+          <tr><th>Host</th><th>Modes</th></tr>
+          <tr><td>Fireheart</td><td>0, 1, 2, 3</td></tr>
+          <tr><td>Apophysis 7X</td><td>0</td></tr>
+        </table></div>
+        <p>Apophysis variations cannot discard a point. Modes 1 and 2 discard points that land on ground, so they are not suited to it. Mode 0 does not depend on the incoming point and emits a point on ink, so it works there.</p></div>
+        <div class="pfig"></div>
+      </div>
+
+    <h2 id="sets"><span class="n">3</span> Tile sets</h2>
+    <p>Both sets use the same square cells and the same subdivision. They differ in how a tile meets its neighbours: the band set joins them with a wide strip of ink, the dot set with two dots. A tile only joins tiles of its own set, so the sets cannot be mixed.</p>
+      <div class="param" id="s-band">
+        <div class="ptext"><h3><span class="n">3.1</span> Band set</h3><p class="meta"><code>style 0</code> · 15 tiles</p>
+        <p>Christopher Carlson's tiles. Strokes are one third of a cell wide, and every edge carries ink along its middle third, so neighbours join strip to strip. Families are enabled with <a href="#p-types"><code>types</code></a>.</p></div>
+        <div class="pfig"><img src="assets/square-tiles.png" alt="The 15 band tiles" class="sheet"></div>
+      </div>
+      <div class="param" id="s-dot">
+        <div class="ptext"><h3><span class="n">3.2</span> Dot set</h3><p class="meta"><code>style 1</code> · 22 tiles</p>
+        <p>Built from circles. Each edge carries two ink dots, at one quarter and three quarters of its length, so neighbours join dot to dot. Strokes are one sixth of a cell wide. Some tiles have two or four distinct rotations. <code>types</code> is ignored.</p></div>
+        <div class="pfig"><img src="assets/round-tiles.png" alt="The 22 dot tiles" class="sheet"></div>
+      </div>
+
+    <h2 id="install"><span class="n">4</span> Installation</h2>
+    <ul>
+      <li><b>Fireheart.</b> Built in.</li>
+      <li><b>Apophysis 7X.</b> Copy <code>truchet_ms.dll</code> (x64 or x86 to match Apophysis) from the <a href="__REPO_URL__/releases">releases page</a> into the <code>Plugins</code> folder and restart. Requires Windows 10 or later.</li>
+      <li><b>WebAssembly.</b> <code>truchet_plugin.wasm</code>, loaded with <code>loadLiveModule</code>.</li>
+      <li><b>Rust.</b> The <code>truchet-tiles</code> crate. See the <a href="api/">API documentation</a>.</li>
+    </ul>
+  </article>
+  <footer class="foot"><span>MIT licensed. Tiles after Christopher Carlson, <a href="https://archive.bridgesmathart.org/2018/bridges2018-39.pdf">Multi-Scale Truchet Patterns</a> (Bridges 2018).</span><span><a href="./">Tiles to Vodoo</a> &middot; <a href="__REPO_URL__">Source</a></span></footer>
+</div>
+<script src="assets/truchet.js"></script>
+<script src="assets/docs.js"></script>
+</body>
+</html>
