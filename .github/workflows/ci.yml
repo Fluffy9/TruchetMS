@@ -34,7 +34,7 @@ jobs:
       - run: cargo test --workspace
       - run: cargo build --release --target wasm32-unknown-unknown -p truchet-plugin
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: truchet-plugin-wasm
           path: target/wasm32-unknown-unknown/release/truchet_plugin.wasm
@@ -88,7 +88,7 @@ jobs:
             throw 'DLL depends on a redistributable runtime'
           }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: truchet_ms-${{ matrix.arch }}
           path: target/${{ matrix.target }}/release/truchet_ms.dll
