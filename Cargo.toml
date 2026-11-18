@@ -1,9 +1,10 @@
 [workspace]
 resolver = "2"
-members = ["crates/truchet-tiles", "crates/truchet-plugin"]
+members = ["crates/truchet-tiles", "crates/truchet-plugin", "crates/truchet-apophysis"]
 
-[workspace.package]
-edition = "2021"
-license = "MIT"
-publish = false
-version = "0.1.0"
+[profile.release]
+# Plugins are loaded into hosts that cannot unwind a Rust panic: abort instead.
+panic = "abort"
+lto = true
+codegen-units = 1
+strip = true

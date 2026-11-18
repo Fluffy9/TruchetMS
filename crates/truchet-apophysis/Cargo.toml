@@ -1,0 +1,16 @@
+[package]
+name = "truchet-apophysis"
+version = "0.0.0"
+edition = "2021"
+license = "MIT"
+publish = false
+description = "Apophysis 7X plugin DLL for the truchet_ms variation"
+
+[lib]
+# The file Apophysis loads is `truchet_ms.dll`. `rlib` lets the tests call the
+# exports as plain Rust functions.
+name = "truchet_ms"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+truchet-tiles = { path = "../truchet-tiles" }

@@ -3,12 +3,19 @@
 version = 4
 
 [[package]]
+name = "truchet-apophysis"
+version = "0.0.0"
+dependencies = [
+ "truchet-tiles",
+]
+
+[[package]]
 name = "truchet-plugin"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "truchet-tiles",
 ]
 
 [[package]]
 name = "truchet-tiles"
-version = "0.1.0"
+version = "0.0.0"

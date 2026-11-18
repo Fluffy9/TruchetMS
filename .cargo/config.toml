@@ -1,0 +1,5 @@
+# The Apophysis plugin is loaded into someone else's process on machines we do
+# not control. Link the MSVC C runtime statically so the DLL does not need the
+# Visual C++ Redistributable installed.
+[target.'cfg(all(windows, target_env = "msvc"))']
+rustflags = ["-C", "target-feature=+crt-static"]
