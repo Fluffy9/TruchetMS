@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  check:
+    name: Check, test, wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+      - run: cargo build --release --target wasm32-unknown-unknown -p truchet-plugin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truchet-plugin-wasm
+          path: target/wasm32-unknown-unknown/release/truchet_plugin.wasm
+          if-no-files-found: error
+
+  apophysis:
+    name: Apophysis DLL (${{ matrix.arch }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            target: x86_64-pc-windows-msvc
+          - arch: x86
+            target: i686-pc-windows-msvc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Test the plugin ABI
+        run: cargo test --release -p truchet-apophysis --target ${{ matrix.target }}
+
+      - name: Build the DLL
+        run: cargo build --release -p truchet-apophysis --target ${{ matrix.target }}
+
+      # After the cargo steps, so the MSVC environment does not influence them.
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Load it the way Apophysis does
+        shell: pwsh
+        run: |
+          cl /nologo /O2 crates\truchet-apophysis\smoke\smoke.c /Fe:smoke.exe
+          if ($LASTEXITCODE -ne 0) { throw 'smoke test failed to compile' }
+          .\smoke.exe "target\${{ matrix.target }}\release\truchet_ms.dll"
+          if ($LASTEXITCODE -ne 0) { throw 'smoke test failed' }
+
+      - name: Check the DLL needs no redistributable runtime
+        shell: pwsh
+        run: |
+          $imports = (& dumpbin /dependents "target\${{ matrix.target }}\release\truchet_ms.dll") -join "`n"
+          Write-Host $imports
+          if ($imports -match '(?i)vcruntime|msvcp|libgcc|winpthread') {
+            throw 'DLL depends on a redistributable runtime'
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truchet_ms-${{ matrix.arch }}
+          path: target/${{ matrix.target }}/release/truchet_ms.dll
+          if-no-files-found: error
