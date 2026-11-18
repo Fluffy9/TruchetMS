@@ -1,0 +1,50 @@
+name: Release
+
+# Push a tag like v0.1.0 to publish a GitHub release with the Apophysis DLLs
+# (32- and 64-bit) and the WebAssembly plugin guest.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Publish release
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Package
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          for arch in x64 x86; do
+            stage="truchet_ms-apophysis-$TAG-$arch"
+            mkdir "$stage"
+            cp "artifacts/truchet_ms-$arch/truchet_ms.dll" "$stage/"
+            cp crates/truchet-apophysis/README.md "$stage/README.md"
+            zip -r "out/$stage.zip" "$stage"
+          done
+          cp artifacts/truchet-plugin-wasm/truchet_plugin.wasm "out/truchet_plugin-$TAG.wasm"
+          (cd out && sha256sum -- * > SHA256SUMS)
+          ls -l out
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true
