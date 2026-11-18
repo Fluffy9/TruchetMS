@@ -1,10 +1,12 @@
 //! Fireheart guest for `truchet_ms`.
 //!
-//! The host sends the point after the pre-affine. This module does not apply
-//! that affine again. A sample on the ground is written as NaN so the host
-//! drops it.
+//! The host sends the point after the pre-affine. This module maps that point
+//! and leaves the affine alone. A sample on the ground is written as NaN so the
+//! host drops it. Prefer the host builtin for filter/snap soft-hide.
 
-use truchet_tiles::{map_point, Mosaic, TYPE_DL, TYPE_DR};
+use truchet_tiles::{
+    disk_map, disk_sample, filter_point, sample_ink, snap_point, Mosaic, TYPE_ROUND,
+};
 
 const BATCH_MAX: usize = 256;
 const BUF_CAP: usize = 64 * 1024;
@@ -12,7 +14,7 @@ const CATALOG: &str = concat!(
     "{\"id\":\"truchet\",\"plugins\":[{",
     "\"index\":0,",
     "\"name\":\"truchet_ms\",",
-    "\"author\":\"fireheart\",",
+    "\"author\":\"Pupcakes\",",
     "\"description\":\"Multi-scale Carlson Truchet bands. Odd levels flip ink and ground.\",",
     "\"stage\":0,",
     "\"params\":[",
@@ -22,8 +24,22 @@ const CATALOG: &str = concat!(
     "{\"name\":\"levels\",\"default\":4},",
     "{\"name\":\"split\",\"default\":0.5},",
     "{\"name\":\"types\",\"default\":3},",
+    "{\"name\":\"style\",\"default\":0},",
     "{\"name\":\"noise\",\"default\":0.45},",
-    "{\"name\":\"scale\",\"default\":1}",
+    "{\"name\":\"scale\",\"default\":1},",
+    "{\"name\":\"mode\",\"default\":0},",
+    "{\"name\":\"snap\",\"default\":0.4},",
+    "{\"name\":\"grade\",\"default\":0}",
+    "]},{",
+    "\"index\":1,",
+    "\"name\":\"hypertile\",",
+    "\"author\":\"fireheart\",",
+    "\"description\":\"{p,q} disk map. n picks the p-fold turn.\",",
+    "\"stage\":0,",
+    "\"params\":[",
+    "{\"name\":\"p\",\"default\":3},",
+    "{\"name\":\"q\",\"default\":7},",
+    "{\"name\":\"n\",\"default\":0}",
     "]}]}"
 );
 
@@ -82,26 +98,17 @@ pub extern "C" fn pack_apply_batch(len: i32, count: i32) -> i32 {
     if len < 0 || len as usize > BUF_CAP || count <= 0 || count as usize > BATCH_MAX {
         return 0;
     }
-    let bytes = unsafe { std::slice::from_raw_parts(std::ptr::addr_of!(BUF).cast::<u8>(), len as usize) };
+    let bytes =
+        unsafe { std::slice::from_raw_parts(std::ptr::addr_of!(BUF).cast::<u8>(), len as usize) };
     let Some(slot) = decode_slot(bytes) else {
         return 0;
     };
-    let mosaic = Mosaic {
-        seed: slot.param("seed", 1.0) as u32,
-        width: slot.param("width", 6.0),
-        height: slot.param("height", 6.0),
-        levels: slot.param("levels", 4.0) as i32,
-        split: slot.param("split", 0.5),
-        types: slot.param("types", (TYPE_DL | TYPE_DR) as f32) as u32,
-        noise: slot.param("noise", 0.45),
-    };
-    let scale = slot.param("scale", 1.0);
     for i in 0..count as usize {
         let (x, y, z) = unsafe {
             let inp = std::ptr::addr_of!(IN).cast::<f32>();
             (*inp.add(i * 3), *inp.add(i * 3 + 1), *inp.add(i * 3 + 2))
         };
-        let mapped = map_point(&mosaic, x, y, z, slot.weight, scale);
+        let mapped = apply_slot(&slot, x, y, z);
         unsafe {
             let out = std::ptr::addr_of_mut!(OUT).cast::<f32>().add(i * 3);
             match mapped {
@@ -121,7 +128,73 @@ pub extern "C" fn pack_apply_batch(len: i32, count: i32) -> i32 {
     1
 }
 
+fn apply_slot(slot: &Slot, x: f32, y: f32, z: f32) -> Option<[f32; 3]> {
+    if slot.index == 1 {
+        let point = disk_map(
+            x,
+            y,
+            slot.param("p", 3.0),
+            slot.param("q", 7.0),
+            slot.param("n", 0.0),
+            slot.weight,
+        )?;
+        return Some([point[0], point[1], z * slot.weight]);
+    }
+    let mosaic = Mosaic {
+        seed: slot.param("seed", 1.0) as u32,
+        width: slot.param("width", 6.0),
+        height: slot.param("height", 6.0),
+        levels: slot.param("levels", 4.0) as i32,
+        split: slot.param("split", 0.5),
+        // style >= 0.5 selects the dot set; `types` is ignored then.
+        types: if slot.param("style", 0.0) >= 0.5 {
+            TYPE_ROUND
+        } else {
+            slot.param("types", 3.0) as u32
+        },
+        noise: slot.param("noise", 0.45),
+        grade: slot.param("grade", 0.0),
+    };
+    let scale = slot.param("scale", 1.0);
+    let mode = slot.param("mode", 0.0).round() as i32;
+    if mode == 1 {
+        return filter_point(&mosaic, x, y, z, slot.weight, scale);
+    }
+    if mode == 3 {
+        return disk_sample(&mosaic, slot.weight, next_unit);
+    }
+    if mode == 2 {
+        return snap_point(
+            &mosaic,
+            x,
+            y,
+            z,
+            slot.weight,
+            scale,
+            slot.param("snap", 0.4),
+            next_unit,
+        );
+    }
+    sample_ink(&mosaic, z, slot.weight, scale, next_unit)
+}
+
+fn next_unit() -> f32 {
+    static mut STATE: u32 = 0xA341_316C;
+    unsafe {
+        let mut x = STATE;
+        x ^= x << 13;
+        x ^= x >> 17;
+        x ^= x << 5;
+        if x == 0 {
+            x = 0xA341_316C;
+        }
+        STATE = x;
+        (x >> 8) as f32 / 16777216.0
+    }
+}
+
 struct Slot {
+    index: u32,
     weight: f32,
     params: Vec<(String, f32)>,
 }
@@ -145,7 +218,7 @@ fn decode_slot(bytes: &[u8]) -> Option<Slot> {
     if count == 0 {
         return None;
     }
-    let _index = cur.u32()?;
+    let index = cur.u32()?;
     let weight = cur.f32()?;
     let nparams = cur.u32()? as usize;
     if nparams > 32 {
@@ -162,7 +235,11 @@ fn decode_slot(bytes: &[u8]) -> Option<Slot> {
         cur.bytes(pad)?;
         params.push((name, cur.f32()?));
     }
-    Some(Slot { weight, params })
+    Some(Slot {
+        index,
+        weight,
+        params,
+    })
 }
 
 struct Cursor<'a> {
