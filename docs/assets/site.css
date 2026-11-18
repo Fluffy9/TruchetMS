@@ -180,8 +180,5 @@ footer.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;p
 @media(max-width:820px){.doc{padding:10px 18px 60px}.param{grid-template-columns:minmax(0,1fr)}.contents ol ol{columns:1}.contents{display:block}}
 
 fireheart-viewer{display:block;max-width:100%;margin:0 auto}
-figure[data-widget="viewer"]{position:relative}
-.fh-link{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:4px 9px 4px 6px;background:rgba(22,22,22,.88);border:1px solid var(--line);color:var(--ink);font:.72rem var(--mono);text-decoration:none}
-.fh-link img{width:16px;height:16px;display:block}
-.fh-link:hover{background:var(--ink);color:var(--paper)}
+
 .ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px;margin-top:18px}.ex figure{margin:0;border:2px solid var(--line);min-width:0}.ex figcaption{padding:8px 10px;font-size:.82rem;color:var(--dim);border-top:2px solid var(--line)}

@@ -457,9 +457,6 @@
     var s = document.createElement('script'); s.type = 'module'; s.src = 'https://firehe.art/embed/fireheart-embed.js';
     document.head.appendChild(s);
     var fb = root.querySelector('img');
-    // Credit and link to Fireheart on every live frame, even while it loads or if it fails.
-    root.appendChild(h('a', { 'class': 'fh-link', href: 'https://firehe.art', target: '_blank', rel: 'noopener', title: 'Rendered with Fireheart' },
-      h('img', { src: 'assets/fireheart.svg', alt: '', width: 16, height: 16 }), 'Fireheart'));
     Promise.all([fetch(url).then(function (r) { if (!r.ok) throw 0; return r.text(); }),
       Promise.race([customElements.whenDefined('fireheart-viewer'), new Promise(function (_, no) { setTimeout(no, 8000); })])])
       .then(function (a) {
