@@ -51,6 +51,8 @@ pre code{background:none;padding:0}
 .two{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:44px;align-items:start;margin-top:34px}
 @media(max-width:900px){.two{grid-template-columns:1fr}.sec{padding:56px 20px 50px}}
 .say p{margin:.8em 0}
+.say ul{margin:.8em 0;padding-left:1.25em}
+.say li{margin:.4em 0}
 .say .when{border-left:3px solid var(--line);padding-left:14px;margin:1.1em 0;font-size:.98rem}
 .say .when b{font-weight:700;color:var(--hot)}
 /* widget shell */
